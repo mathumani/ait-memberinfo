@@ -1,0 +1,44 @@
+version: '3.3'
+services:
+
+  db:
+    image: hub.assemble.co.tz/mariadb:10.7.1-focal
+    deploy:
+      labels:
+        NodeService: "DB"
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: secured.
+      MARIADB_DATABASE: member
+      MARIADB_USER: member
+      MARIADBY_PASSWORD: secured.
+    volumes:
+      - /mnt/dockerFS/volumes/memberinfo/dbinit:/docker-entrypoint-initdb.d
+      - /home/mussa/sysdb/memberinfo:/var/lib/mysql
+      
+  app:
+    image: hub.assemble.co.tz/webserver:php-8.0.12-apache
+    ports:
+     - 5443:443
+    volumes:
+     - /mnt/dockerFS/volumes/memberinfo/ssl:/etc/apache2/cert
+     - /mnt/dockerFS/volumes/memberinfo/app:/var/www/html
+     - /mnt/dockerFS/volumes/memberinfo/photo:/var/www/photo
+    networks:
+     - default
+    logging:
+      driver: json-file
+      
+  dbadmin:
+    image: hub.assemble.co.tz/phpmyadmin:latest
+    environment:
+      PMA_ARBITRARY: '1'
+    ports:
+     - 4050:80
+    networks:
+     - default
+    logging:
+      driver: json-file
+networks:
+  default:
+    driver: overlay
